@@ -1,0 +1,90 @@
+@page
+@model SistemaMantenciones.Pages.Vehiculos.EditarModel
+@{
+    ViewData["Title"] = "Editar Vehículo";
+}
+
+<div class="container mt-4">
+    <h2>Modificar Datos del Vehículo</h2>
+    <hr />
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-4">
+            <form method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                <input type="hidden" asp-for="Vehiculo.Codigo" />
+
+                <div class="row g-3">
+                    <!-- Código del Vehículo (Solo Lectura) -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Código del Vehículo</label>
+                        <input asp-for="Vehiculo.Codigo" class="form-control" readonly />
+                    </div>
+
+                    <!-- Patente -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Patente</label>
+                        <input asp-for="Vehiculo.Patente" class="form-control" required />
+                        <span asp-validation-for="Vehiculo.Patente" class="text-danger small"></span>
+                    </div>
+
+                    <!-- Marca -->
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Marca</label>
+                        <input asp-for="Vehiculo.Marca" class="form-control" required />
+                        <span asp-validation-for="Vehiculo.Marca" class="text-danger small"></span>
+                    </div>
+
+                    <!-- Modelo -->
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Modelo</label>
+                        <input asp-for="Vehiculo.Modelo" class="form-control" required />
+                        <span asp-validation-for="Vehiculo.Modelo" class="text-danger small"></span>
+                    </div>
+
+                    <!-- Tipo -->
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Tipo de Vehículo</label>
+                        <input asp-for="Vehiculo.Tipo" class="form-control" required />
+                        <span asp-validation-for="Vehiculo.Tipo" class="text-danger small"></span>
+                    </div>
+
+                    <!-- Kilometraje -->
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Kilometraje (km)</label>
+                        <input asp-for="Vehiculo.Kilometraje" class="form-control" type="number" min="0" required />
+                        <span asp-validation-for="Vehiculo.Kilometraje" class="text-danger small"></span>
+                    </div>
+
+                    <!-- Estado -->
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Estado</label>
+                        <select asp-for="Vehiculo.Estado" class="form-select" required>
+                            <option value="Activo">Activo (Disponible)</option>
+                            <option value="Arrendado">Arrendado</option>
+                            <option value="En Mantencion">En Mantención</option>
+                            <option value="De Baja">Dado de Baja</option>
+                        </select>
+                        <span asp-validation-for="Vehiculo.Estado" class="text-danger small"></span>
+                    </div>
+
+                    <!-- Precio de Arriendo Diario -->
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Precio Arriendo Diario ($)</label>
+                        <input asp-for="Vehiculo.PrecioArriendoDiario" class="form-control" type="number" min="0" required />
+                        <span asp-validation-for="Vehiculo.PrecioArriendoDiario" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="mt-4 d-flex gap-2">
+                    <button type="submit" class="btn btn-warning px-4">Guardar Cambios</button>
+                    <a asp-page="./Index" class="btn btn-secondary px-4">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

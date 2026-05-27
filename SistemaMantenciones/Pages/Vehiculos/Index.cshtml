@@ -1,0 +1,78 @@
+@page
+@model SistemaMantenciones.Pages.Vehiculos.IndexModel
+@{
+    ViewData["Title"] = "Gestión de Vehículos";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Gestión de Flota de Vehículos</h2>
+        <a asp-page="./Crear" class="btn btn-primary">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle-fill me-1" viewBox="0 0 16 16">
+                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3v-3z"/>
+            </svg>
+            Agregar Nuevo Vehículo
+        </a>
+    </div>
+    <hr />
+
+    <table class="table table-striped table-bordered mt-3 text-center align-middle">
+        <thead class="table-dark">
+            <tr>
+                <th>Código</th>
+                <th>Patente</th>
+                <th>Marca</th>
+                <th>Modelo</th>
+                <th>Tipo</th>
+                <th>Kilometraje</th>
+                <th>Estado</th>
+                <th>Precio Diario</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.Vehiculos != null && Model.Vehiculos.Any())
+            {
+                foreach (var item in Model.Vehiculos)
+                {
+                    string badgeColor = item.Estado switch
+                    {
+                        "Activo" => "bg-success",
+                        "Arrendado" => "bg-primary",
+                        "En Mantencion" => "bg-warning text-dark",
+                        "De Baja" => "bg-danger",
+                        _ => "bg-secondary"
+                    };
+
+                    <tr>
+                        <td class="fw-bold">@item.Codigo</td>
+                        <td>@item.Patente</td>
+                        <td>@item.Marca</td>
+                        <td>@item.Modelo</td>
+                        <td>@item.Tipo</td>
+                        <td>@item.Kilometraje.ToString("N0") km</td>
+                        <td>
+                            <span class="badge @badgeColor">@item.Estado</span>
+                        </td>
+                        <td class="fw-bold text-success">$@item.PrecioArriendoDiario.ToString("N0")</td>
+                        <td>
+                            <a asp-page="./Editar" asp-route-id="@item.Codigo" class="btn btn-warning btn-sm">Editar</a>
+                            <form method="post" asp-page-handler="Delete" class="d-inline">
+                                <input type="hidden" name="id" value="@item.Codigo" />
+                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('¿Estás seguro de que deseas eliminar este vehículo? Esto también eliminará sus mantenciones.');">Eliminar</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="9" class="text-center text-muted p-4">
+                        No hay vehículos registrados en el sistema. ¡Agrega uno nuevo para comenzar!
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
