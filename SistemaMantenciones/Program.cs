@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using SistemaRRHH.Models; // Esto permite que Program.cs encuentre tus clases generadas
+using SistemaMantenciones.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,8 +11,8 @@ builder.Services.AddRazorPages();
 
 // --- CONFIGURACIÓN DE LA BASE DE DATOS ---
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-builder.Services.AddDbContext<RrhhDbContext>(options =>
-    options.UseMySql(connectionString, ServerVersion.Parse("8.0.46-mysql")));
+builder.Services.AddDbContext<ArriendosMantencionesDbContext>(options =>
+    options.UseMySql(connectionString, ServerVersion.Parse("8.0.44-mysql")));
 // -----------------------------------------
 
 var app = builder.Build();

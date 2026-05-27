@@ -1,0 +1,68 @@
+@page
+@model SistemaMantenciones.Pages.Mantenciones.RegistrarModel
+@{
+    ViewData["Title"] = "Registrar Mantención";
+}
+
+<div class="container mt-4">
+    <h2>Registrar Mantención de Vehículo</h2>
+    <hr />
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <strong>Excelente!</strong> @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-4">
+            <form method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="row g-3">
+                    <!-- Selección del Vehículo -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Seleccionar Vehículo</label>
+                        <select asp-for="Mantencion.CodigoVehiculo" asp-items="Model.VehiculosList" class="form-select" required>
+                            <option value="">-- Seleccione un Vehículo --</option>
+                        </select>
+                        <span asp-validation-for="Mantencion.CodigoVehiculo" class="text-danger small"></span>
+                    </div>
+
+                    <!-- Fecha de la Mantención -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Fecha de la Mantención</label>
+                        <input asp-for="Mantencion.Fecha" class="form-control" type="datetime-local" required />
+                        <span asp-validation-for="Mantencion.Fecha" class="text-danger small"></span>
+                    </div>
+
+                    <!-- RUT del Mecánico -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">RUT del Mecánico</label>
+                        <input asp-for="Mantencion.RutMecanico" class="form-control" placeholder="Ej: 20847813-3" required />
+                        <span asp-validation-for="Mantencion.RutMecanico" class="text-danger small"></span>
+                        <div class="form-text text-muted">Use formato sin puntos y con guion (ej: 12345678-9).</div>
+                    </div>
+
+                    <!-- Horas de Trabajo -->
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Duración de la Mantención (Horas)</label>
+                        <input asp-for="Mantencion.Horas" class="form-control" type="number" min="1" max="168" placeholder="Ej: 8" required />
+                        <span asp-validation-for="Mantencion.Horas" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="mt-4 d-flex gap-2">
+                    <button type="submit" class="btn btn-success px-4">Registrar Mantención</button>
+                    <a asp-page="/Index" class="btn btn-secondary px-4">Volver al Inicio</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
