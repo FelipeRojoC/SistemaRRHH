@@ -1,0 +1,74 @@
+@page
+@model SistemaRRHH.Pages.TrabajadoresModel
+@{
+    ViewData["Title"] = "Trabajadores";
+}
+
+<div class="container mt-4">
+    <h2>Gestión de Mecánicos</h2>
+    <hr />
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">@(string.IsNullOrWhiteSpace(Model.RutEnEdicion) ? "Agregar Nuevo Trabajador" : "Editar Trabajador")</h5>
+            <form method="post">
+                <input type="hidden" asp-for="RutEnEdicion" />
+                <div class="row g-3 align-items-center">
+                    <div class="col-auto">
+                        <label>RUT</label>
+                        <input asp-for="NuevoMecanico.Rut" class="form-control" placeholder="12345678-9" required />
+                    </div>
+                    <div class="col-auto">
+                        <label>Nombre</label>
+                        <input asp-for="NuevoMecanico.Nombre" class="form-control" required />
+                    </div>
+                    <div class="col-auto">
+                        <label>Sueldo Base ($)</label>
+                        <input asp-for="NuevoMecanico.SueldoBase" class="form-control" type="number" required />
+                    </div>
+                    <div class="col-auto">
+                        <label>Valor Hora ($)</label>
+                        <input asp-for="NuevoMecanico.ValorHora" class="form-control" type="number" required />
+                    </div>
+                    <div class="col-auto mt-4">
+                        <button type="submit" class="btn btn-primary">@(string.IsNullOrWhiteSpace(Model.RutEnEdicion) ? "Guardar" : "Actualizar")</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <h4>Lista de Trabajadores</h4>
+    <table class="table table-striped table-bordered mt-3">
+        <thead class="table-dark">
+            <tr>
+                <th>RUT</th>
+                <th>Nombre</th>
+                <th>Sueldo Base</th>
+                <th>Valor Hora</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.Mecanicos != null)
+            {
+                foreach (var item in Model.Mecanicos)
+                {
+                    <tr>
+                        <td>@item.Rut</td>
+                        <td>@item.Nombre</td>
+                        <td>$@item.SueldoBase</td>
+                        <td>$@item.ValorHora</td>
+                        <td>
+                            <a asp-page="./Editar" asp-route-rut="@item.Rut" class="btn btn-warning btn-sm">Editar</a>
+                            <form method="post" asp-page-handler="Delete" class="d-inline">
+                                <input type="hidden" name="rut" value="@item.Rut" />
+                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('¿Estás seguro de que deseas eliminar a este trabajador?');">Eliminar</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
