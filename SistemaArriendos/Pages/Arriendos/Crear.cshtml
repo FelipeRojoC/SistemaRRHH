@@ -1,0 +1,65 @@
+@page
+@model SistemaArriendos.Pages.Arriendos.CrearModel
+@{
+    ViewData["Title"] = "Nuevo Arriendo";
+}
+
+<div class="container mt-4">
+    <h2>Registrar Nuevo Arriendo</h2>
+    <p class="text-muted small">Solo se muestran vehículos en estado <span class="badge bg-success">Activo</span>. Los precios se calculan automáticamente según el valor diario del vehículo y la cantidad de días.</p>
+    <hr />
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-4">
+            <form method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Vehículo a Arrendar</label>
+                        <select asp-for="Arriendo.CodigoVehiculo" asp-items="Model.VehiculosDisponiblesList" class="form-select" required>
+                            <option value="">-- Seleccione un vehículo disponible --</option>
+                        </select>
+                        <span asp-validation-for="Arriendo.CodigoVehiculo" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Cliente</label>
+                        <select asp-for="Arriendo.RutCliente" asp-items="Model.ClientesList" class="form-select" required>
+                            <option value="">-- Seleccione un cliente --</option>
+                        </select>
+                        <span asp-validation-for="Arriendo.RutCliente" class="text-danger small"></span>
+                        <div class="form-text text-muted">
+                            ¿No está en la lista? <a asp-page="/Clientes/Crear">Crear cliente nuevo</a>.
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Fecha de Inicio</label>
+                        <input asp-for="Arriendo.FechaInicio" class="form-control" type="date" required />
+                        <span asp-validation-for="Arriendo.FechaInicio" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Fecha de Fin</label>
+                        <input asp-for="Arriendo.FechaFin" class="form-control" type="date" required />
+                        <span asp-validation-for="Arriendo.FechaFin" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="alert alert-info mt-3 small mb-0">
+                    <strong>Precio diario y total</strong> se cargarán automáticamente al guardar, usando el valor configurado del vehículo y la cantidad de días entre las fechas.
+                </div>
+
+                <div class="mt-4 d-flex gap-2">
+                    <button type="submit" class="btn btn-success px-4">Registrar Arriendo</button>
+                    <a asp-page="./Index" class="btn btn-secondary px-4">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

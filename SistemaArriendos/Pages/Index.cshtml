@@ -1,0 +1,100 @@
+@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Inicio - Sistema de Arriendos";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10 text-center">
+            <h1 class="display-4 fw-bold text-primary mb-3">Sistema de Arriendos de Vehículos</h1>
+            <p class="lead text-muted mb-4">
+                Gestión integral de la operación comercial: clientes, disponibilidad de la flota y registro de arriendos con control automático del estado de los vehículos.
+            </p>
+            <hr class="my-4" />
+        </div>
+    </div>
+
+    <!-- Panel de Métricas -->
+    <div class="row g-3 justify-content-center mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm text-center">
+                <div class="card-body">
+                    <h6 class="text-muted text-uppercase small mb-1">Vehículos Disponibles</h6>
+                    <p class="display-6 fw-bold text-success mb-0">@Model.VehiculosDisponibles</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm text-center">
+                <div class="card-body">
+                    <h6 class="text-muted text-uppercase small mb-1">Arriendos Activos</h6>
+                    <p class="display-6 fw-bold text-primary mb-0">@Model.ArriendosActivos</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm text-center">
+                <div class="card-body">
+                    <h6 class="text-muted text-uppercase small mb-1">Clientes Registrados</h6>
+                    <p class="display-6 fw-bold text-warning mb-0">@Model.TotalClientes</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4 g-4 justify-content-center">
+        <!-- Tarjeta Arriendos -->
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body text-center p-4">
+                    <div class="mb-3 text-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="bi bi-clipboard-check" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M10.854 7.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 9.793l2.646-2.647a.5.5 0 0 1 .708 0z"/>
+                            <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
+                            <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>
+                        </svg>
+                    </div>
+                    <h5 class="card-title fw-bold">Registro de Arriendos</h5>
+                    <p class="card-text text-muted">Registra nuevos arriendos, valida la disponibilidad del vehículo y consulta los contratos activos o históricos.</p>
+                    <a asp-page="/Arriendos/Crear" class="btn btn-outline-primary mt-3">Nuevo Arriendo</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tarjeta Clientes -->
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body text-center p-4">
+                    <div class="mb-3 text-warning">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="bi bi-people-fill" viewBox="0 0 16 16">
+                            <path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1H7Zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/>
+                            <path fill-rule="evenodd" d="M5.216 14A2.238 2.238 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.325 6.325 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1h4.216Z"/>
+                            <path d="M4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"/>
+                        </svg>
+                    </div>
+                    <h5 class="card-title fw-bold">Cartera de Clientes</h5>
+                    <p class="card-text text-muted">Administra la cartera de clientes: RUT, nombre y dirección. Cada arriendo se asocia a un cliente registrado.</p>
+                    <a asp-page="/Clientes/Index" class="btn btn-outline-warning mt-3">Gestionar Clientes</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tarjeta Vehículos -->
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body text-center p-4">
+                    <div class="mb-3 text-success">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="bi bi-car-front" viewBox="0 0 16 16">
+                            <path d="M4 9a1 1 0 1 1-2 0 1 1 0 0 1 2 0Zm10 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM6 8a1 1 0 0 0 0 2h4a1 1 0 1 0 0-2H6ZM9.854 1.146a.5.5 0 0 0-.708 0L6.854 3.44A.5.5 0 0 0 7 4h2v3a1 1 0 1 0 2 0V4h2a.5.5 0 0 0 .354-.854L9.854 1.146Z"/>
+                            <path d="M16 8v3a1 1 0 0 1-1 1h-1.077c-.126.68-.458 1.285-.94 1.745-.487.466-1.127.755-1.923.755H3.94c-.796 0-1.436-.289-1.923-.755a3.3 3.3 0 0 1-.94-1.745H0V8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2Zm-1.5 1h-11a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h11a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5Z"/>
+                        </svg>
+                    </div>
+                    <h5 class="card-title fw-bold">Disponibilidad de Flota</h5>
+                    <p class="card-text text-muted">Consulta en tiempo real el estado de la flota: disponibles, arrendados, en mantención o dados de baja.</p>
+                    <a asp-page="/Vehiculos/Index" class="btn btn-outline-success mt-3">Ver Flota</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
