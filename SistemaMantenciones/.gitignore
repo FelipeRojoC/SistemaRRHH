@@ -1,0 +1,32 @@
+## Core dotnet Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Re]leases/
+x64/
+x86/
+[Aa]rm/
+[Aa]rm64/
+asmdir/
+bin/
+obj/
+artifacts/
+
+## Visual Studio / VS Code Cache and settings
+.vs/
+.vscode/
+*.user
+*.userosscache
+*.suo
+*.userprefs
+*.sln.docstates
+
+## OS Metadata
+.DS_Store
+Thumbs.db
+
+## Databases and Local Secrets
+*.db
+*.sqlite
+appsettings.local.json
+appsettings.Production.json
