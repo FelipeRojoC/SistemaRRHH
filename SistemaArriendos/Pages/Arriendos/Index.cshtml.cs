@@ -20,7 +20,7 @@ namespace SistemaArriendos.Pages.Arriendos
         public IList<Arriendo> listaArriendos { get; set; } = default!;
         public Dictionary<string, VehiculoRespuesta> mapaVehiculos { get; set; } = new();
 
-        public async Task onGetAsync()
+        public async Task OnGetAsync()
         {
             listaArriendos = await _contextoDb.arriendos
                 .Include(a => a.rutClienteNavigation)
@@ -44,7 +44,7 @@ namespace SistemaArriendos.Pages.Arriendos
             }
         }
 
-        public async Task<IActionResult> onPostCerrarArriendoAsync(int id)
+        public async Task<IActionResult> OnPostCerrarArriendoAsync(int id)
         {
             var arriendo = await _contextoDb.arriendos.FindAsync(id);
             if (arriendo == null)

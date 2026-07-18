@@ -24,7 +24,7 @@ namespace SistemaArriendos.Pages.Arriendos
         [BindProperty]
         public Arriendo arriendo { get; set; } = default!;
 
-        public async Task<IActionResult> onGetAsync()
+        public async Task<IActionResult> OnGetAsync()
         {
             await cargarListasAsync();
 
@@ -38,9 +38,12 @@ namespace SistemaArriendos.Pages.Arriendos
             return Page();
         }
 
-        public async Task<IActionResult> onPostAsync()
+        public async Task<IActionResult> OnPostAsync()
         {
             ModelState.Remove("arriendo.rutClienteNavigation");
+            ModelState.Remove("arriendo.estado");
+            ModelState.Remove("arriendo.precioDiario");
+            ModelState.Remove("arriendo.precioTotal");
 
             if (!ModelState.IsValid || arriendo == null)
             {

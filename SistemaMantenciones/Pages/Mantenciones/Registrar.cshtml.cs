@@ -17,7 +17,7 @@ namespace SistemaMantenciones.Pages.Mantenciones
 
         public SelectList listaVehiculos { get; set; } = default!;
 
-        public async Task<IActionResult> onGetAsync()
+        public async Task<IActionResult> OnGetAsync()
         {
             var vehiculos = await _contextoDb.vehiculos
                 .Where(v => v.estado != "De Baja")
@@ -37,7 +37,7 @@ namespace SistemaMantenciones.Pages.Mantenciones
         [BindProperty]
         public Mantenicion mantenicion { get; set; } = default!;
 
-        public async Task<IActionResult> onPostAsync()
+        public async Task<IActionResult> OnPostAsync()
         {
             ModelState.Remove("mantenicion.codigoVehiculoNavigation");
 

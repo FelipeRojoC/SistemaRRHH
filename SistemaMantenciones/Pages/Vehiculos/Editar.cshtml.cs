@@ -17,7 +17,7 @@ namespace SistemaMantenciones.Pages.Vehiculos
         [BindProperty]
         public Vehiculo vehiculo { get; set; } = default!;
 
-        public async Task<IActionResult> onGetAsync(string id)
+        public async Task<IActionResult> OnGetAsync(string id)
         {
             if (id == null || _contextoDb.vehiculos == null)
             {
@@ -33,7 +33,7 @@ namespace SistemaMantenciones.Pages.Vehiculos
             return Page();
         }
 
-        public async Task<IActionResult> onPostAsync()
+        public async Task<IActionResult> OnPostAsync()
         {
             ModelState.Remove("vehiculo.manteniciones");
 

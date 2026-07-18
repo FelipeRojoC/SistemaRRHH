@@ -20,7 +20,7 @@ public class IndexModel : PageModel
     public int arriendosActivos { get; set; }
     public int totalClientes { get; set; }
 
-    public async Task onGetAsync()
+    public async Task OnGetAsync()
     {
         totalClientes = await _contextoDb.clientes.CountAsync();
         arriendosActivos = await _contextoDb.arriendos.CountAsync(a => a.estado == "Activo");

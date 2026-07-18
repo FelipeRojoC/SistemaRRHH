@@ -16,7 +16,7 @@ namespace SistemaMantenciones.Pages.Vehiculos
 
         public IList<Vehiculo> listaVehiculos { get; set; } = default!;
 
-        public async Task onGetAsync()
+        public async Task OnGetAsync()
         {
             if (_contextoDb.vehiculos != null)
             {
@@ -24,7 +24,7 @@ namespace SistemaMantenciones.Pages.Vehiculos
             }
         }
 
-        public async Task<IActionResult> onPostCambiaEstadoAsync(string id, string nuevoEstado)
+        public async Task<IActionResult> OnPostCambiaEstadoAsync(string id, string nuevoEstado)
         {
             if (id == null || _contextoDb.vehiculos == null)
             {
@@ -43,7 +43,7 @@ namespace SistemaMantenciones.Pages.Vehiculos
             return RedirectToPage();
         }
 
-        public async Task<IActionResult> onPostDeleteAsync(string id)
+        public async Task<IActionResult> OnPostDeleteAsync(string id)
         {
             if (id == null || _contextoDb.vehiculos == null)
             {
