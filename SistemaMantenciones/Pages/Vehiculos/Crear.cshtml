@@ -1,11 +1,11 @@
 @page
 @model SistemaMantenciones.Pages.Vehiculos.CrearModel
 @{
-    ViewData["Title"] = "Agregar Vehículo";
+    ViewData["Title"] = "Agregar Vehiculo";
 }
 
 <div class="container mt-4">
-    <h2>Registrar Nuevo Vehículo</h2>
+    <h2>Registrar Nuevo Vehiculo</h2>
     <hr />
 
     <div class="card shadow-sm border-0">
@@ -14,70 +14,70 @@
                 <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
                 <div class="row g-3">
-                    <!-- Código del Vehículo -->
+                    <!-- Codigo del Vehiculo -->
                     <div class="col-md-6">
-                        <label class="form-label fw-bold">Código del Vehículo</label>
-                        <input asp-for="Vehiculo.Codigo" class="form-control" placeholder="Ej: V-01" required />
-                        <span asp-validation-for="Vehiculo.Codigo" class="text-danger small"></span>
+                        <label class="form-label fw-bold">Codigo del Vehiculo</label>
+                        <input asp-for="vehiculo.codigo" class="form-control" placeholder="Ej: V-01" required />
+                        <span asp-validation-for="vehiculo.codigo" class="text-danger small"></span>
                     </div>
 
                     <!-- Patente -->
                     <div class="col-md-6">
                         <label class="form-label fw-bold">Patente</label>
-                        <input asp-for="Vehiculo.Patente" class="form-control" placeholder="Ej: ABCD12 o AB1234" required />
-                        <span asp-validation-for="Vehiculo.Patente" class="text-danger small"></span>
+                        <input asp-for="vehiculo.patente" class="form-control" placeholder="Ej: ABCD12 o AB1234" required />
+                        <span asp-validation-for="vehiculo.patente" class="text-danger small"></span>
                     </div>
 
                     <!-- Marca -->
                     <div class="col-md-4">
                         <label class="form-label fw-bold">Marca</label>
-                        <input asp-for="Vehiculo.Marca" class="form-control" placeholder="Ej: Toyota" required />
-                        <span asp-validation-for="Vehiculo.Marca" class="text-danger small"></span>
+                        <input asp-for="vehiculo.marca" class="form-control" placeholder="Ej: Toyota" required />
+                        <span asp-validation-for="vehiculo.marca" class="text-danger small"></span>
                     </div>
 
                     <!-- Modelo -->
                     <div class="col-md-4">
                         <label class="form-label fw-bold">Modelo</label>
-                        <input asp-for="Vehiculo.Modelo" class="form-control" placeholder="Ej: Hilux" required />
-                        <span asp-validation-for="Vehiculo.Modelo" class="text-danger small"></span>
+                        <input asp-for="vehiculo.modelo" class="form-control" placeholder="Ej: Hilux" required />
+                        <span asp-validation-for="vehiculo.modelo" class="text-danger small"></span>
                     </div>
 
                     <!-- Tipo -->
                     <div class="col-md-4">
-                        <label class="form-label fw-bold">Tipo de Vehículo</label>
-                        <input asp-for="Vehiculo.Tipo" class="form-control" placeholder="Ej: Camioneta, SUV, Sedán" required />
-                        <span asp-validation-for="Vehiculo.Tipo" class="text-danger small"></span>
+                        <label class="form-label fw-bold">Tipo de Vehiculo</label>
+                        <input asp-for="vehiculo.tipo" class="form-control" placeholder="Ej: Camioneta, SUV, Sedan" required />
+                        <span asp-validation-for="vehiculo.tipo" class="text-danger small"></span>
                     </div>
 
                     <!-- Kilometraje -->
                     <div class="col-md-4">
                         <label class="form-label fw-bold">Kilometraje (km)</label>
-                        <input asp-for="Vehiculo.Kilometraje" class="form-control" type="number" min="0" placeholder="Ej: 15000" required />
-                        <span asp-validation-for="Vehiculo.Kilometraje" class="text-danger small"></span>
+                        <input asp-for="vehiculo.kilometraje" class="form-control" type="number" min="0" placeholder="Ej: 15000" required />
+                        <span asp-validation-for="vehiculo.kilometraje" class="text-danger small"></span>
                     </div>
 
                     <!-- Estado -->
                     <div class="col-md-4">
                         <label class="form-label fw-bold">Estado</label>
-                        <select asp-for="Vehiculo.Estado" class="form-select" required>
+                        <select asp-for="vehiculo.estado" class="form-select" required>
                             <option value="Activo">Activo (Disponible)</option>
                             <option value="Arrendado">Arrendado</option>
-                            <option value="En Mantencion">En Mantención</option>
+                            <option value="En Mantenicion">En Mantenicion</option>
                             <option value="De Baja">Dado de Baja</option>
                         </select>
-                        <span asp-validation-for="Vehiculo.Estado" class="text-danger small"></span>
+                        <span asp-validation-for="vehiculo.estado" class="text-danger small"></span>
                     </div>
 
                     <!-- Precio de Arriendo Diario -->
                     <div class="col-md-4">
                         <label class="form-label fw-bold">Precio Arriendo Diario ($)</label>
-                        <input asp-for="Vehiculo.PrecioArriendoDiario" class="form-control" type="number" min="0" placeholder="Ej: 35000" required />
-                        <span asp-validation-for="Vehiculo.PrecioArriendoDiario" class="text-danger small"></span>
+                        <input asp-for="vehiculo.precioArriendoDiario" class="form-control" type="number" min="0" placeholder="Ej: 35000" required />
+                        <span asp-validation-for="vehiculo.precioArriendoDiario" class="text-danger small"></span>
                     </div>
                 </div>
 
                 <div class="mt-4 d-flex gap-2">
-                    <button type="submit" class="btn btn-success px-4">Guardar Vehículo</button>
+                    <button type="submit" class="btn btn-success px-4">Guardar Vehiculo</button>
                     <a asp-page="./Index" class="btn btn-secondary px-4">Cancelar</a>
                 </div>
             </form>

@@ -5,11 +5,11 @@ namespace SistemaArriendos.Models;
 
 public partial class Cliente
 {
-    public string Rut { get; set; } = null!;
+    public string rut { get; set; } = null!;
 
-    public string Nombre { get; set; } = null!;
+    public string nombre { get; set; } = null!;
 
-    public string Direccion { get; set; } = null!;
+    public string direccion { get; set; } = null!;
 
-    public virtual ICollection<Arriendo> Arriendos { get; set; } = new List<Arriendo>();
+    public virtual ICollection<Arriendo> arriendos { get; set; } = new List<Arriendo>();
 }

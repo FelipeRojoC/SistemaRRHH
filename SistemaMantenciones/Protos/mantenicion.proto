@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package mantenicion;
+
+option csharp_namespace = "SistemaMantenciones.Protos";
+
+service ServicioMantencion {
+  rpc obtieneVehiculo (ObtieneVehiculoPeticion) returns (VehiculoRespuesta);
+  rpc obtieneVehiculos (ObtieneVehiculosPeticion) returns (ListaVehiculosRespuesta);
+  rpc cambiaEstadoVehiculo (CambiaEstadoVehiculoPeticion) returns (CambiaEstadoVehiculoRespuesta);
+}
+
+message ObtieneVehiculoPeticion {
+  string id = 1;
+}
+
+message ObtieneVehiculosPeticion {
+}
+
+message VehiculoRespuesta {
+  string codigo = 1;
+  string patente = 2;
+  string marca = 3;
+  string modelo = 4;
+  string tipo = 5;
+  int32 kilometraje = 6;
+  string estado = 7;
+  int32 precioArriendoDiario = 8;
+}
+
+message ListaVehiculosRespuesta {
+  repeated VehiculoRespuesta vehiculos = 1;
+}
+
+message CambiaEstadoVehiculoPeticion {
+  string id = 1;
+  string estado = 2;
+}
+
+message CambiaEstadoVehiculoRespuesta {
+  bool exito = 1;
+  string mensaje = 2;
+}

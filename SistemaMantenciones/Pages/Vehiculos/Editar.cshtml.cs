@@ -7,56 +7,57 @@ namespace SistemaMantenciones.Pages.Vehiculos
 {
     public class EditarModel : PageModel
     {
-        private readonly ArriendosMantencionesDbContext _context;
+        private readonly ArriendosMantencionesDbContext _contextoDb;
 
-        public EditarModel(ArriendosMantencionesDbContext context)
+        public EditarModel(ArriendosMantencionesDbContext contextoDb)
         {
-            _context = context;
+            _contextoDb = contextoDb;
         }
 
         [BindProperty]
-        public Vehiculo Vehiculo { get; set; } = default!;
+        public Vehiculo vehiculo { get; set; } = default!;
 
-        public async Task<IActionResult> OnGetAsync(string id)
+        public async Task<IActionResult> onGetAsync(string id)
         {
-            if (id == null || _context.Vehiculos == null)
+            if (id == null || _contextoDb.vehiculos == null)
             {
                 return NotFound();
             }
 
-            var vehiculo = await _context.Vehiculos.FirstOrDefaultAsync(m => m.Codigo == id);
-            if (vehiculo == null)
+            var v = await _contextoDb.vehiculos.FirstOrDefaultAsync(m => m.codigo == id);
+            if (v == null)
             {
                 return NotFound();
             }
-            Vehiculo = vehiculo;
+            vehiculo = v;
             return Page();
         }
 
-        public async Task<IActionResult> OnPostAsync()
+        public async Task<IActionResult> onPostAsync()
         {
+            ModelState.Remove("vehiculo.manteniciones");
+
             if (!ModelState.IsValid)
             {
                 return Page();
             }
 
-            // Validar que la patente no esté duplicada en otro vehículo
-            var patenteDuplicada = await _context.Vehiculos.AnyAsync(v => v.Patente == Vehiculo.Patente && v.Codigo != Vehiculo.Codigo);
+            var patenteDuplicada = await _contextoDb.vehiculos.AnyAsync(v => v.patente == vehiculo.patente && v.codigo != vehiculo.codigo);
             if (patenteDuplicada)
             {
-                ModelState.AddModelError("Vehiculo.Patente", "La patente ya se encuentra asignada a otro vehículo.");
+                ModelState.AddModelError("vehiculo.patente", "La patente ya se encuentra asignada a otro vehiculo.");
                 return Page();
             }
 
-            _context.Attach(Vehiculo).State = EntityState.Modified;
+            _contextoDb.Attach(vehiculo).State = EntityState.Modified;
 
             try
             {
-                await _context.SaveChangesAsync();
+                await _contextoDb.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!VehiculoExists(Vehiculo.Codigo))
+                if (!vehiculoExists(vehiculo.codigo))
                 {
                     return NotFound();
                 }
@@ -69,9 +70,9 @@ namespace SistemaMantenciones.Pages.Vehiculos
             return RedirectToPage("./Index");
         }
 
-        private bool VehiculoExists(string id)
+        private bool vehiculoExists(string id)
         {
-          return (_context.Vehiculos?.Any(e => e.Codigo == id)).GetValueOrDefault();
+            return (_contextoDb.vehiculos?.Any(e => e.codigo == id)).GetValueOrDefault();
         }
     }
 }

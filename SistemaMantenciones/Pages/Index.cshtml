@@ -1,23 +1,23 @@
 @page
 @model IndexModel
 @{
-    ViewData["Title"] = "Inicio - Sistema de Mantenciones";
+    ViewData["Title"] = "Inicio - Sistema de Manteniciones";
 }
 
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-10 text-center">
-            <h1 class="display-4 fw-bold text-primary mb-3">Sistema de Mantención de Vehículos</h1>
+            <h1 class="display-4 fw-bold text-primary mb-3">Sistema de Mantenicion de Vehiculos</h1>
             <p class="lead text-muted mb-4">
-                Administración centralizada de flota de vehículos, registro de mantenimiento preventivo y correctivo, y consolidación de horas trabajadas para el cálculo de remuneraciones.
+                Administracion centralizada de flota de vehiculos, registro de manteniciones preventivas y correctivas.
             </p>
             <hr class="my-4" />
         </div>
     </div>
 
     <div class="row mt-4 g-4 justify-content-center">
-        <!-- Tarjeta Vehículos -->
-        <div class="col-md-4">
+        <!-- Tarjeta Vehiculos -->
+        <div class="col-md-5">
             <div class="card h-100 shadow-sm border-0">
                 <div class="card-body text-center p-4">
                     <div class="mb-3 text-primary">
@@ -26,15 +26,15 @@
                             <path d="M16 8v3a1 1 0 0 1-1 1h-1.077c-.126.68-.458 1.285-.94 1.745-.487.466-1.127.755-1.923.755H3.94c-.796 0-1.436-.289-1.923-.755a3.3 3.3 0 0 1-.94-1.745H0V8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2Zm-1.5 1h-11a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h11a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5Z"/>
                         </svg>
                     </div>
-                    <h5 class="card-title fw-bold">Flota de Vehículos</h5>
+                    <h5 class="card-title fw-bold">Flota de Vehiculos</h5>
                     <p class="card-text text-muted">Ingresa, modifica, elimina y consulta el estado, kilometraje y disponibilidad de la flota vehicular.</p>
-                    <a asp-page="/Vehiculos/Index" class="btn btn-outline-primary mt-3">Gestionar Vehículos</a>
+                    <a asp-page="/Vehiculos/Index" class="btn btn-outline-primary mt-3">Gestionar Vehiculos</a>
                 </div>
             </div>
         </div>
 
-        <!-- Tarjeta Mantenciones -->
-        <div class="col-md-4">
+        <!-- Tarjeta Manteniciones -->
+        <div class="col-md-5">
             <div class="card h-100 shadow-sm border-0">
                 <div class="card-body text-center p-4">
                     <div class="mb-3 text-success">
@@ -43,25 +43,8 @@
                         </svg>
                     </div>
                     <h5 class="card-title fw-bold">Registro de Trabajo</h5>
-                    <p class="card-text text-muted">Ingresa las mantenciones preventivas y correctivas con detalles del vehículo, mecánico y horas dedicadas.</p>
-                    <a asp-page="/Mantenciones/Registrar" class="btn btn-outline-success mt-3">Registrar Mantención</a>
-                </div>
-            </div>
-        </div>
-
-        <!-- Tarjeta Horas -->
-        <div class="col-md-4">
-            <div class="card h-100 shadow-sm border-0">
-                <div class="card-body text-center p-4">
-                    <div class="mb-3 text-warning">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="bi bi-file-earmark-code" viewBox="0 0 16 16">
-                            <path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5L14 4.5Zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5h-2Z"/>
-                            <path d="M8.646 6.646a.5.5 0 0 1 .708 0l2 2a.5.5 0 0 1 0 .708l-2 2a.5.5 0 0 1-.708-.708L10.293 9 8.646 7.354a.5.5 0 0 1 0-.708Zm-1.292 0a.5.5 0 0 0-.708 0l-2 2a.5.5 0 0 0 0 .708l2 2a.5.5 0 0 0 .708-.708L5.707 9l1.647-1.646a.5.5 0 0 0 0-.708Z"/>
-                        </svg>
-                    </div>
-                    <h5 class="card-title fw-bold">Generación de Horas</h5>
-                    <p class="card-text text-muted">Consolida las horas trabajadas por mecánico y genera el archivo JSON para alimentar al sistema de Recursos Humanos.</p>
-                    <a asp-page="/Mantenciones/GenerarHoras" class="btn btn-outline-warning mt-3">Generar horas.json</a>
+                    <p class="card-text text-muted">Ingresa las manteniciones preventivas y correctivas con detalles del vehiculo y horas dedicadas.</p>
+                    <a asp-page="/Mantenciones/Registrar" class="btn btn-outline-success mt-3">Registrar Mantenicion</a>
                 </div>
             </div>
         </div>

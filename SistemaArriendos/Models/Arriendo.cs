@@ -5,21 +5,21 @@ namespace SistemaArriendos.Models;
 
 public partial class Arriendo
 {
-    public int Id { get; set; }
+    public int id { get; set; }
 
-    public string CodigoVehiculo { get; set; } = null!;
+    public string codigoVehiculo { get; set; } = null!;
 
-    public string RutCliente { get; set; } = null!;
+    public string rutCliente { get; set; } = null!;
 
-    public DateTime FechaInicio { get; set; }
+    public DateTime fechaInicio { get; set; }
 
-    public DateTime FechaFin { get; set; }
+    public DateTime fechaFin { get; set; }
 
-    public int PrecioDiario { get; set; }
+    public int precioDiario { get; set; }
 
-    public int PrecioTotal { get; set; }
+    public int precioTotal { get; set; }
 
-    public virtual Vehiculo CodigoVehiculoNavigation { get; set; } = null!;
+    public string estado { get; set; } = null!;
 
-    public virtual Cliente RutClienteNavigation { get; set; } = null!;
+    public virtual Cliente rutClienteNavigation { get; set; } = null!;
 }

@@ -7,51 +7,50 @@ namespace SistemaMantenciones.Pages.Vehiculos
 {
     public class CrearModel : PageModel
     {
-        private readonly ArriendosMantencionesDbContext _context;
+        private readonly ArriendosMantencionesDbContext _contextoDb;
 
-        public CrearModel(ArriendosMantencionesDbContext context)
+        public CrearModel(ArriendosMantencionesDbContext contextoDb)
         {
-            _context = context;
+            _contextoDb = contextoDb;
         }
 
-        public IActionResult OnGet()
+        public IActionResult onGet()
         {
-            // Inicializamos el modelo con estado por defecto 'Activo'
-            Vehiculo = new Vehiculo
+            vehiculo = new Vehiculo
             {
-                Estado = "Activo"
+                estado = "Activo"
             };
             return Page();
         }
 
         [BindProperty]
-        public Vehiculo Vehiculo { get; set; } = default!;
+        public Vehiculo vehiculo { get; set; } = default!;
 
-        public async Task<IActionResult> OnPostAsync()
+        public async Task<IActionResult> onPostAsync()
         {
-            if (!ModelState.IsValid || _context.Vehiculos == null || Vehiculo == null)
+            ModelState.Remove("vehiculo.manteniciones");
+
+            if (!ModelState.IsValid || _contextoDb.vehiculos == null || vehiculo == null)
             {
                 return Page();
             }
 
-            // Validar que el código de vehículo no esté duplicado
-            var existente = await _context.Vehiculos.FindAsync(Vehiculo.Codigo);
+            var existente = await _contextoDb.vehiculos.FindAsync(vehiculo.codigo);
             if (existente != null)
             {
-                ModelState.AddModelError("Vehiculo.Codigo", "El código del vehículo ya se encuentra registrado.");
+                ModelState.AddModelError("vehiculo.codigo", "El codigo del vehiculo ya se encuentra registrado.");
                 return Page();
             }
 
-            // Validar que la patente no esté duplicada
-            var patenteExistente = await _context.Vehiculos.AnyAsync(v => v.Patente == Vehiculo.Patente);
+            var patenteExistente = await _contextoDb.vehiculos.AnyAsync(v => v.patente == vehiculo.patente);
             if (patenteExistente)
             {
-                ModelState.AddModelError("Vehiculo.Patente", "La patente del vehículo ya se encuentra registrada.");
+                ModelState.AddModelError("vehiculo.patente", "La patente del vehiculo ya se encuentra registrada.");
                 return Page();
             }
 
-            _context.Vehiculos.Add(Vehiculo);
-            await _context.SaveChangesAsync();
+            _contextoDb.vehiculos.Add(vehiculo);
+            await _contextoDb.SaveChangesAsync();
 
             return RedirectToPage("./Index");
         }

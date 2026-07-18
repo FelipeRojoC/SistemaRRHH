@@ -1,26 +1,49 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using SistemaArriendos.Models;
+using SistemaArriendos.Protos;
 
 namespace SistemaArriendos.Pages;
 
 public class IndexModel : PageModel
 {
-    private readonly ArriendosMantencionesDbContext _context;
+    private readonly ArriendosMantencionesDbContext _contextoDb;
+    private readonly ServicioMantencion.ServicioMantencionClient _clienteGrpc;
 
-    public IndexModel(ArriendosMantencionesDbContext context)
+    public IndexModel(ArriendosMantencionesDbContext contextoDb, ServicioMantencion.ServicioMantencionClient clienteGrpc)
     {
-        _context = context;
+        _contextoDb = contextoDb;
+        _clienteGrpc = clienteGrpc;
     }
 
-    public int VehiculosDisponibles { get; set; }
-    public int ArriendosActivos { get; set; }
-    public int TotalClientes { get; set; }
+    public int vehiculosDisponibles { get; set; }
+    public int arriendosActivos { get; set; }
+    public int totalClientes { get; set; }
 
-    public async Task OnGetAsync()
+    public async Task onGetAsync()
     {
-        VehiculosDisponibles = await _context.Vehiculos.CountAsync(v => v.Estado == "Activo");
-        ArriendosActivos = await _context.Arriendos.CountAsync(a => a.FechaFin >= DateTime.Now);
-        TotalClientes = await _context.Clientes.CountAsync();
+        totalClientes = await _contextoDb.clientes.CountAsync();
+        arriendosActivos = await _contextoDb.arriendos.CountAsync(a => a.estado == "Activo");
+
+        try
+        {
+            var respuestaVehiculos = await _clienteGrpc.obtieneVehiculosAsync(new ObtieneVehiculosPeticion());
+            if (respuestaVehiculos != null)
+            {
+                int count = 0;
+                foreach (var v in respuestaVehiculos.Vehiculos)
+                {
+                    if (v.Estado == "Activo")
+                    {
+                        count++;
+                    }
+                }
+                vehiculosDisponibles = count;
+            }
+        }
+        catch
+        {
+            vehiculosDisponibles = 0;
+        }
     }
 }

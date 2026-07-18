@@ -35,53 +35,68 @@
         <thead class="table-dark">
             <tr>
                 <th>#</th>
-                <th>Vehículo</th>
+                <th>Vehiculo</th>
                 <th>Cliente</th>
                 <th>Inicio</th>
                 <th>Fin</th>
                 <th>Precio Diario</th>
                 <th>Total</th>
-                <th>Estado Vehículo</th>
+                <th>Estado Vehiculo</th>
+                <th>Estado Arriendo</th>
                 <th>Acciones</th>
             </tr>
         </thead>
         <tbody>
-            @if (Model.Arriendos != null && Model.Arriendos.Any())
+            @if (Model.listaArriendos != null && Model.listaArriendos.Any())
             {
-                foreach (var item in Model.Arriendos)
+                foreach (var item in Model.listaArriendos)
                 {
-                    string badgeColor = item.CodigoVehiculoNavigation.Estado switch
+                    bool tieneVehiculo = Model.mapaVehiculos.TryGetValue(item.codigoVehiculo, out var v);
+                    string badgeColor = tieneVehiculo ? v!.Estado switch
                     {
                         "Activo" => "bg-success",
                         "Arrendado" => "bg-primary",
-                        "En Mantencion" => "bg-warning text-dark",
+                        "En Mantenicion" => "bg-warning text-dark",
                         "De Baja" => "bg-danger",
                         _ => "bg-secondary"
-                    };
+                    } : "bg-secondary";
 
-                    bool puedeDevolver = item.CodigoVehiculoNavigation.Estado == "Arrendado";
+                    string estadoVehiculo = tieneVehiculo ? v!.Estado : "Desconocido";
 
                     <tr>
-                        <td class="fw-bold">@item.Id</td>
+                        <td class="fw-bold">@item.id</td>
                         <td>
-                            <strong>@item.CodigoVehiculo</strong><br />
-                            <small class="text-muted">@item.CodigoVehiculoNavigation.Marca @item.CodigoVehiculoNavigation.Modelo (@item.CodigoVehiculoNavigation.Patente)</small>
-                        </td>
-                        <td>
-                            <strong>@item.RutClienteNavigation.Nombre</strong><br />
-                            <small class="text-muted">@item.RutCliente</small>
-                        </td>
-                        <td>@item.FechaInicio.ToString("dd-MM-yyyy")</td>
-                        <td>@item.FechaFin.ToString("dd-MM-yyyy")</td>
-                        <td>$@item.PrecioDiario.ToString("N0")</td>
-                        <td class="fw-bold text-success">$@item.PrecioTotal.ToString("N0")</td>
-                        <td><span class="badge @badgeColor">@item.CodigoVehiculoNavigation.Estado</span></td>
-                        <td>
-                            @if (puedeDevolver)
+                            <strong>@item.codigoVehiculo</strong><br />
+                            @if (tieneVehiculo)
                             {
-                                <form method="post" asp-page="./Devolver" class="d-inline">
-                                    <input type="hidden" name="id" value="@item.Id" />
-                                    <button type="submit" class="btn btn-success btn-sm" onclick="return confirm('¿Confirmar devolución del vehículo? Su estado volverá a Activo.');">Devolver</button>
+                                <small class="text-muted">@v!.Marca @v.Modelo (@v.Patente)</small>
+                            }
+                        </td>
+                        <td>
+                            <strong>@item.rutClienteNavigation.nombre</strong><br />
+                            <small class="text-muted">@item.rutCliente</small>
+                        </td>
+                        <td>@item.fechaInicio.ToString("dd-MM-yyyy")</td>
+                        <td>@item.fechaFin.ToString("dd-MM-yyyy")</td>
+                        <td>$@item.precioDiario.ToString("N0")</td>
+                        <td class="fw-bold text-success">$@item.precioTotal.ToString("N0")</td>
+                        <td><span class="badge @badgeColor">@estadoVehiculo</span></td>
+                        <td>
+                            @if (item.estado == "Activo")
+                            {
+                                <span class="badge bg-success">Activo</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Cerrado</span>
+                            }
+                        </td>
+                        <td>
+                            @if (item.estado == "Activo" && estadoVehiculo == "Arrendado")
+                            {
+                                <form method="post" asp-page-handler="CerrarArriendo" class="d-inline">
+                                    <input type="hidden" name="id" value="@item.id" />
+                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('¿Confirmar cierre del arriendo? El vehiculo volvera a estado Activo.');">Cerrar Arriendo</button>
                                 </form>
                             }
                             else
@@ -95,8 +110,8 @@
             else
             {
                 <tr>
-                    <td colspan="9" class="text-center text-muted p-4">
-                        Aún no se han registrado arriendos. ¡Crea el primero!
+                    <td colspan="10" class="text-center text-muted p-4">
+                        Aun no se han registrado arriendos. ¡Crea el primero!
                     </td>
                 </tr>
             }

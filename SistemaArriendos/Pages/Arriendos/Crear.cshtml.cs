@@ -3,123 +3,164 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using SistemaArriendos.Models;
+using SistemaArriendos.Protos;
 
 namespace SistemaArriendos.Pages.Arriendos
 {
     public class CrearModel : PageModel
     {
-        private readonly ArriendosMantencionesDbContext _context;
+        private readonly ArriendosMantencionesDbContext _contextoDb;
+        private readonly ServicioMantencion.ServicioMantencionClient _clienteGrpc;
 
-        public CrearModel(ArriendosMantencionesDbContext context)
+        public CrearModel(ArriendosMantencionesDbContext contextoDb, ServicioMantencion.ServicioMantencionClient clienteGrpc)
         {
-            _context = context;
+            _contextoDb = contextoDb;
+            _clienteGrpc = clienteGrpc;
         }
 
-        public SelectList VehiculosDisponiblesList { get; set; } = default!;
-        public SelectList ClientesList { get; set; } = default!;
+        public SelectList listaVehiculosDisponibles { get; set; } = default!;
+        public SelectList listaClientes { get; set; } = default!;
 
         [BindProperty]
-        public Arriendo Arriendo { get; set; } = default!;
+        public Arriendo arriendo { get; set; } = default!;
 
-        public async Task<IActionResult> OnGetAsync()
+        public async Task<IActionResult> onGetAsync()
         {
-            await CargarSelectsAsync();
+            await cargarListasAsync();
 
-            Arriendo = new Arriendo
+            arriendo = new Arriendo
             {
-                FechaInicio = DateTime.Today,
-                FechaFin = DateTime.Today.AddDays(1)
+                fechaInicio = DateTime.Today,
+                fechaFin = DateTime.Today.AddDays(1),
+                estado = "Activo"
             };
 
             return Page();
         }
 
-        public async Task<IActionResult> OnPostAsync()
+        public async Task<IActionResult> onPostAsync()
         {
-            // Estos campos los completamos en el servidor
-            ModelState.Remove("Arriendo.CodigoVehiculoNavigation");
-            ModelState.Remove("Arriendo.RutClienteNavigation");
-            ModelState.Remove("Arriendo.PrecioDiario");
-            ModelState.Remove("Arriendo.PrecioTotal");
+            ModelState.Remove("arriendo.rutClienteNavigation");
 
-            if (!ModelState.IsValid || Arriendo == null)
+            if (!ModelState.IsValid || arriendo == null)
             {
-                await CargarSelectsAsync();
+                await cargarListasAsync();
                 return Page();
             }
 
-            // 1. Validar fechas
-            if (Arriendo.FechaFin <= Arriendo.FechaInicio)
+            if (arriendo.fechaFin <= arriendo.fechaInicio)
             {
-                ModelState.AddModelError("Arriendo.FechaFin", "La fecha de fin debe ser posterior a la fecha de inicio.");
-                await CargarSelectsAsync();
+                ModelState.AddModelError("arriendo.fechaFin", "La fecha de fin debe ser posterior a la fecha de inicio.");
+                await cargarListasAsync();
                 return Page();
             }
 
-            // 2. Validar que el vehículo exista y esté en estado 'Activo'
-            var vehiculo = await _context.Vehiculos.FindAsync(Arriendo.CodigoVehiculo);
-            if (vehiculo == null)
+            // Obtener vehiculo desde el servicio gRPC
+            VehiculoRespuesta? v = null;
+            try
             {
-                ModelState.AddModelError("Arriendo.CodigoVehiculo", "El vehículo seleccionado no existe.");
-                await CargarSelectsAsync();
+                v = await _clienteGrpc.obtieneVehiculoAsync(new ObtieneVehiculoPeticion { Id = arriendo.codigoVehiculo });
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("arriendo.codigoVehiculo", $"No se pudo obtener el vehiculo desde el servicio gRPC: {ex.Message}");
+                await cargarListasAsync();
                 return Page();
             }
 
-            // Regla de negocio: no se puede arrendar un vehículo Arrendado, En Mantencion o De Baja
-            if (vehiculo.Estado != "Activo")
+            if (v == null)
             {
-                ModelState.AddModelError("Arriendo.CodigoVehiculo",
-                    $"No se puede arrendar este vehículo: su estado actual es '{vehiculo.Estado}'. Solo se permiten vehículos en estado 'Activo'.");
-                await CargarSelectsAsync();
+                ModelState.AddModelError("arriendo.codigoVehiculo", "El vehiculo seleccionado no existe.");
+                await cargarListasAsync();
                 return Page();
             }
 
-            // 3. Validar que el cliente exista
-            var cliente = await _context.Clientes.FindAsync(Arriendo.RutCliente);
-            if (cliente == null)
+            if (v.Estado != "Activo")
             {
-                ModelState.AddModelError("Arriendo.RutCliente", "El cliente seleccionado no existe.");
-                await CargarSelectsAsync();
+                ModelState.AddModelError("arriendo.codigoVehiculo", $"No se puede arrendar este vehiculo: su estado actual es '{v.Estado}'. Solo se permiten vehiculos en estado 'Activo'.");
+                await cargarListasAsync();
                 return Page();
             }
 
-            // 4. Calcular precios desde el lado del servidor (no confiar en el cliente)
-            int dias = (int)Math.Ceiling((Arriendo.FechaFin - Arriendo.FechaInicio).TotalDays);
+            var c = await _contextoDb.clientes.FindAsync(arriendo.rutCliente);
+            if (c == null)
+            {
+                ModelState.AddModelError("arriendo.rutCliente", "El cliente seleccionado no existe.");
+                await cargarListasAsync();
+                return Page();
+            }
+
+            int dias = (int)Math.Ceiling((arriendo.fechaFin - arriendo.fechaInicio).TotalDays);
             if (dias < 1) dias = 1;
 
-            Arriendo.PrecioDiario = vehiculo.PrecioArriendoDiario;
-            Arriendo.PrecioTotal = vehiculo.PrecioArriendoDiario * dias;
+            arriendo.precioDiario = v.PrecioArriendoDiario;
+            arriendo.precioTotal = v.PrecioArriendoDiario * dias;
+            arriendo.estado = "Activo";
 
-            // 5. Registrar arriendo y actualizar estado del vehículo
-            _context.Arriendos.Add(Arriendo);
+            // Cambiar el estado del vehiculo a "Arrendado" via gRPC
+            try
+            {
+                var respuestaGrpc = await _clienteGrpc.cambiaEstadoVehiculoAsync(new CambiaEstadoVehiculoPeticion
+                {
+                    Id = arriendo.codigoVehiculo,
+                    Estado = "Arrendado"
+                });
 
-            vehiculo.Estado = "Arrendado";
-            _context.Attach(vehiculo).State = EntityState.Modified;
+                if (!respuestaGrpc.Exito)
+                {
+                    ModelState.AddModelError("arriendo.codigoVehiculo", $"Fallo al cambiar el estado del vehiculo via gRPC: {respuestaGrpc.Mensaje}");
+                    await cargarListasAsync();
+                    return Page();
+                }
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("arriendo.codigoVehiculo", $"Fallo la conexion gRPC para cambiar el estado del vehiculo: {ex.Message}");
+                await cargarListasAsync();
+                return Page();
+            }
 
-            await _context.SaveChangesAsync();
+            _contextoDb.arriendos.Add(arriendo);
+            await _contextoDb.SaveChangesAsync();
 
-            TempData["SuccessMessage"] = $"Arriendo registrado: {vehiculo.Marca} {vehiculo.Modelo} ({vehiculo.Patente}) para {cliente.Nombre}, total ${Arriendo.PrecioTotal:N0} por {dias} día(s).";
+            TempData["SuccessMessage"] = $"Arriendo registrado con exito por {dias} dia(s). Total: ${arriendo.precioTotal:N0}";
             return RedirectToPage("./Index");
         }
 
-        private async Task CargarSelectsAsync()
+        private async Task cargarListasAsync()
         {
-            var disponibles = await _context.Vehiculos
-                .Where(v => v.Estado == "Activo")
-                .OrderBy(v => v.Codigo)
-                .Select(v => new
+            var disponibles = new List<object>();
+            try
+            {
+                var respuestaVehiculos = await _clienteGrpc.obtieneVehiculosAsync(new ObtieneVehiculosPeticion());
+                if (respuestaVehiculos != null)
                 {
-                    v.Codigo,
-                    Nombre = $"{v.Codigo} - {v.Marca} {v.Modelo} ({v.Patente}) — ${v.PrecioArriendoDiario}/día"
-                })
-                .ToListAsync();
-            VehiculosDisponiblesList = new SelectList(disponibles, "Codigo", "Nombre");
+                    foreach (var v in respuestaVehiculos.Vehiculos)
+                    {
+                        if (v.Estado == "Activo")
+                        {
+                            disponibles.Add(new
+                            {
+                                codigo = v.Codigo,
+                                nombre = $"{v.Codigo} - {v.Marca} {v.Modelo} ({v.Patente}) - ${v.PrecioArriendoDiario}/dia"
+                            });
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                // Manejar error de conexion
+            }
 
-            var clientes = await _context.Clientes
-                .OrderBy(c => c.Nombre)
-                .Select(c => new { c.Rut, Nombre = $"{c.Nombre} ({c.Rut})" })
+            listaVehiculosDisponibles = new SelectList(disponibles, "codigo", "nombre");
+
+            var clientes = await _contextoDb.clientes
+                .OrderBy(c => c.nombre)
+                .Select(c => new { rut = c.rut, nombre = $"{c.nombre} ({c.rut})" })
                 .ToListAsync();
-            ClientesList = new SelectList(clientes, "Rut", "Nombre");
+
+            listaClientes = new SelectList(clientes, "rut", "nombre");
         }
     }
 }

@@ -1,27 +1,25 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace SistemaMantenciones.Models;
 
 public partial class Vehiculo
 {
-    public string Codigo { get; set; } = null!;
+    public string codigo { get; set; } = null!;
 
-    public string Patente { get; set; } = null!;
+    public string patente { get; set; } = null!;
 
-    public string Marca { get; set; } = null!;
+    public string marca { get; set; } = null!;
 
-    public string Modelo { get; set; } = null!;
+    public string modelo { get; set; } = null!;
 
-    public string Tipo { get; set; } = null!;
+    public string tipo { get; set; } = null!;
 
-    public int Kilometraje { get; set; }
+    public int kilometraje { get; set; }
 
-    public string Estado { get; set; } = null!;
+    public string estado { get; set; } = null!;
 
-    public int PrecioArriendoDiario { get; set; }
+    public int precioArriendoDiario { get; set; }
 
-    public virtual ICollection<Arriendo> Arriendos { get; set; } = new List<Arriendo>();
-
-    public virtual ICollection<Mantencion> Mantencions { get; set; } = new List<Mantencion>();
+    public virtual ICollection<Mantenicion> manteniciones { get; set; } = new List<Mantenicion>();
 }

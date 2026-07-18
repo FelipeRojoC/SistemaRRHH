@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
-using Pomelo.EntityFrameworkCore.MySql.Scaffolding.Internal;
 
 namespace SistemaMantenciones.Models;
 
@@ -16,21 +13,8 @@ public partial class ArriendosMantencionesDbContext : DbContext
     {
     }
 
-    public virtual DbSet<Arriendo> Arriendos { get; set; }
-
-    public virtual DbSet<Cliente> Clientes { get; set; }
-
-    public virtual DbSet<Mantencion> Mantencions { get; set; }
-
-    public virtual DbSet<Vehiculo> Vehiculos { get; set; }
-
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        if (!optionsBuilder.IsConfigured)
-        {
-            optionsBuilder.UseMySql("server=127.0.0.1;user=root;pwd=Bruce90709078.;database=arriendos_mantenciones_db", Microsoft.EntityFrameworkCore.ServerVersion.Parse("8.0.44-mysql"));
-        }
-    }
+    public virtual DbSet<Mantenicion> manteniciones { get; set; } = null!;
+    public virtual DbSet<Vehiculo> vehiculos { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -38,76 +22,39 @@ public partial class ArriendosMantencionesDbContext : DbContext
             .UseCollation("utf8mb4_0900_ai_ci")
             .HasCharSet("utf8mb4");
 
-        modelBuilder.Entity<Arriendo>(entity =>
+        modelBuilder.Entity<Mantenicion>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PRIMARY");
+            entity.HasKey(e => e.id).HasName("PRIMARY");
+            entity.ToTable("mantenicion");
 
-            entity.ToTable("arriendo");
+            entity.HasIndex(e => e.codigoVehiculo, "codigoVehiculo");
 
-            entity.HasIndex(e => e.CodigoVehiculo, "CodigoVehiculo");
+            entity.Property(e => e.id).HasColumnName("id");
+            entity.Property(e => e.codigoVehiculo).HasMaxLength(20).HasColumnName("codigoVehiculo");
+            entity.Property(e => e.fecha).HasColumnType("datetime").HasColumnName("fecha");
+            entity.Property(e => e.horas).HasColumnName("horas");
+            entity.Property(e => e.descripcion).HasMaxLength(200).HasColumnName("descripcion");
 
-            entity.HasIndex(e => e.RutCliente, "RutCliente");
-
-            entity.Property(e => e.CodigoVehiculo).HasMaxLength(20);
-            entity.Property(e => e.FechaFin).HasColumnType("datetime");
-            entity.Property(e => e.FechaInicio).HasColumnType("datetime");
-            entity.Property(e => e.RutCliente).HasMaxLength(12);
-
-            entity.HasOne(d => d.CodigoVehiculoNavigation).WithMany(p => p.Arriendos)
-                .HasForeignKey(d => d.CodigoVehiculo)
-                .HasConstraintName("arriendo_ibfk_1");
-
-            entity.HasOne(d => d.RutClienteNavigation).WithMany(p => p.Arriendos)
-                .HasForeignKey(d => d.RutCliente)
-                .HasConstraintName("arriendo_ibfk_2");
-        });
-
-        modelBuilder.Entity<Cliente>(entity =>
-        {
-            entity.HasKey(e => e.Rut).HasName("PRIMARY");
-
-            entity.ToTable("cliente");
-
-            entity.Property(e => e.Rut).HasMaxLength(12);
-            entity.Property(e => e.Direccion).HasMaxLength(200);
-            entity.Property(e => e.Nombre).HasMaxLength(100);
-        });
-
-        modelBuilder.Entity<Mantencion>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PRIMARY");
-
-            entity.ToTable("mantencion");
-
-            entity.HasIndex(e => e.CodigoVehiculo, "CodigoVehiculo");
-
-            entity.Property(e => e.CodigoVehiculo).HasMaxLength(20);
-            entity.Property(e => e.Fecha).HasColumnType("datetime");
-            entity.Property(e => e.RutMecanico).HasMaxLength(12);
-
-            entity.HasOne(d => d.CodigoVehiculoNavigation).WithMany(p => p.Mantencions)
-                .HasForeignKey(d => d.CodigoVehiculo)
-                .HasConstraintName("mantencion_ibfk_1");
+            entity.HasOne(d => d.codigoVehiculoNavigation).WithMany(p => p.manteniciones)
+                .HasForeignKey(d => d.codigoVehiculo)
+                .HasConstraintName("mantenicion_ibfk_1");
         });
 
         modelBuilder.Entity<Vehiculo>(entity =>
         {
-            entity.HasKey(e => e.Codigo).HasName("PRIMARY");
-
+            entity.HasKey(e => e.codigo).HasName("PRIMARY");
             entity.ToTable("vehiculo");
 
-            entity.HasIndex(e => e.Patente, "Patente").IsUnique();
+            entity.HasIndex(e => e.patente, "patente").IsUnique();
 
-            entity.Property(e => e.Codigo).HasMaxLength(20);
-            entity.Property(e => e.Estado).HasMaxLength(30);
-            entity.Property(e => e.Marca).HasMaxLength(50);
-            entity.Property(e => e.Modelo).HasMaxLength(50);
-            entity.Property(e => e.Patente).HasMaxLength(10);
-            entity.Property(e => e.Tipo).HasMaxLength(50);
+            entity.Property(e => e.codigo).HasMaxLength(20).HasColumnName("codigo");
+            entity.Property(e => e.estado).HasMaxLength(30).HasColumnName("estado");
+            entity.Property(e => e.marca).HasMaxLength(50).HasColumnName("marca");
+            entity.Property(e => e.modelo).HasMaxLength(50).HasColumnName("modelo");
+            entity.Property(e => e.patente).HasMaxLength(10).HasColumnName("patente");
+            entity.Property(e => e.tipo).HasMaxLength(50).HasColumnName("tipo");
+            entity.Property(e => e.kilometraje).HasColumnName("kilometraje");
+            entity.Property(e => e.precioArriendoDiario).HasColumnName("precioArriendoDiario");
         });
-
-        OnModelCreatingPartial(modelBuilder);
     }
-
-    partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }

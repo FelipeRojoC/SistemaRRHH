@@ -7,36 +7,54 @@ namespace SistemaMantenciones.Pages.Vehiculos
 {
     public class IndexModel : PageModel
     {
-        private readonly ArriendosMantencionesDbContext _context;
+        private readonly ArriendosMantencionesDbContext _contextoDb;
 
-        public IndexModel(ArriendosMantencionesDbContext context)
+        public IndexModel(ArriendosMantencionesDbContext contextoDb)
         {
-            _context = context;
+            _contextoDb = contextoDb;
         }
 
-        public IList<Vehiculo> Vehiculos { get; set; } = default!;
+        public IList<Vehiculo> listaVehiculos { get; set; } = default!;
 
-        public async Task OnGetAsync()
+        public async Task onGetAsync()
         {
-            if (_context.Vehiculos != null)
+            if (_contextoDb.vehiculos != null)
             {
-                Vehiculos = await _context.Vehiculos.ToListAsync();
+                listaVehiculos = await _contextoDb.vehiculos.ToListAsync();
             }
         }
 
-        public async Task<IActionResult> OnPostDeleteAsync(string id)
+        public async Task<IActionResult> onPostCambiaEstadoAsync(string id, string nuevoEstado)
         {
-            if (id == null || _context.Vehiculos == null)
+            if (id == null || _contextoDb.vehiculos == null)
             {
                 return NotFound();
             }
 
-            var vehiculo = await _context.Vehiculos.FindAsync(id);
-
-            if (vehiculo != null)
+            var v = await _contextoDb.vehiculos.FindAsync(id);
+            if (v != null)
             {
-                _context.Vehiculos.Remove(vehiculo);
-                await _context.SaveChangesAsync();
+                v.estado = nuevoEstado;
+                _contextoDb.Entry(v).State = EntityState.Modified;
+                await _contextoDb.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Estado del vehiculo actualizado correctamente.";
+            }
+
+            return RedirectToPage();
+        }
+
+        public async Task<IActionResult> onPostDeleteAsync(string id)
+        {
+            if (id == null || _contextoDb.vehiculos == null)
+            {
+                return NotFound();
+            }
+
+            var v = await _contextoDb.vehiculos.FindAsync(id);
+            if (v != null)
+            {
+                _contextoDb.vehiculos.Remove(v);
+                await _contextoDb.SaveChangesAsync();
             }
 
             return RedirectToPage();

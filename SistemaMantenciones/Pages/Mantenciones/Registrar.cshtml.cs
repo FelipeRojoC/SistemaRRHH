@@ -2,123 +2,67 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using MySqlConnector;
 using SistemaMantenciones.Models;
 
 namespace SistemaMantenciones.Pages.Mantenciones
 {
     public class RegistrarModel : PageModel
     {
-        private readonly ArriendosMantencionesDbContext _context;
+        private readonly ArriendosMantencionesDbContext _contextoDb;
 
-        public RegistrarModel(ArriendosMantencionesDbContext context)
+        public RegistrarModel(ArriendosMantencionesDbContext contextoDb)
         {
-            _context = context;
+            _contextoDb = contextoDb;
         }
 
-        public SelectList VehiculosList { get; set; } = default!;
+        public SelectList listaVehiculos { get; set; } = default!;
 
-        public async Task<IActionResult> OnGetAsync()
+        public async Task<IActionResult> onGetAsync()
         {
-            // Cargar vehículos para el select en la vista
-            var vehiculos = await _context.Vehiculos
-                .Where(v => v.Estado != "De Baja") // No se le hacen mantenciones a vehículos dados de baja
-                .Select(v => new { v.Codigo, Nombre = $"{v.Codigo} - {v.Marca} {v.Modelo} ({v.Patente})" })
+            var vehiculos = await _contextoDb.vehiculos
+                .Where(v => v.estado != "De Baja")
+                .Select(v => new { v.codigo, nombre = $"{v.codigo} - {v.marca} {v.modelo} ({v.patente})" })
                 .ToListAsync();
 
-            VehiculosList = new SelectList(vehiculos, "Codigo", "Nombre");
+            listaVehiculos = new SelectList(vehiculos, "codigo", "nombre");
 
-            Mantencion = new Mantencion
+            mantenicion = new Mantenicion
             {
-                Fecha = DateTime.Now
+                fecha = DateTime.Now
             };
 
             return Page();
         }
 
         [BindProperty]
-        public Mantencion Mantencion { get; set; } = default!;
+        public Mantenicion mantenicion { get; set; } = default!;
 
-        public async Task<IActionResult> OnPostAsync()
+        public async Task<IActionResult> onPostAsync()
         {
-            // 1. Remover el objeto de navegación de la validación ya que no es un input del formulario
-            ModelState.Remove("Mantencion.CodigoVehiculoNavigation");
+            ModelState.Remove("mantenicion.codigoVehiculoNavigation");
 
-            if (!ModelState.IsValid || _context.Mantencions == null || Mantencion == null)
+            if (!ModelState.IsValid || _contextoDb.manteniciones == null || mantenicion == null)
             {
-                // Si falla, recargamos el select
-                var vehiculos = await _context.Vehiculos
-                    .Where(v => v.Estado != "De Baja")
-                    .Select(v => new { v.Codigo, Nombre = $"{v.Codigo} - {v.Marca} {v.Modelo} ({v.Patente})" })
+                var vehiculos = await _contextoDb.vehiculos
+                    .Where(v => v.estado != "De Baja")
+                    .Select(v => new { v.codigo, nombre = $"{v.codigo} - {v.marca} {v.modelo} ({v.patente})" })
                     .ToListAsync();
-                VehiculosList = new SelectList(vehiculos, "Codigo", "Nombre");
+                listaVehiculos = new SelectList(vehiculos, "codigo", "nombre");
                 return Page();
             }
 
-            // 2. Validar dinámicamente si el RUT del mecánico existe en la base de datos de Recursos Humanos (rrhh_db)
-            var connectionString = _context.Database.GetConnectionString();
-            bool mecanicoExiste = false;
+            _contextoDb.manteniciones.Add(mantenicion);
 
-            if (!string.IsNullOrEmpty(connectionString))
+            var v = await _contextoDb.vehiculos.FindAsync(mantenicion.codigoVehiculo);
+            if (v != null)
             {
-                // Reutilizamos el host, usuario y clave local del programador actual, cambiando solo la base de datos a rrhh_db
-                var connectionBuilder = new MySqlConnectionStringBuilder(connectionString)
-                {
-                    Database = "rrhh_db"
-                };
-
-                try
-                {
-                    using (var conn = new MySqlConnection(connectionBuilder.ConnectionString))
-                    {
-                        await conn.OpenAsync();
-                        using (var cmd = new MySqlCommand("SELECT COUNT(*) FROM Mecanico WHERE Rut = @rut", conn))
-                        {
-                            cmd.Parameters.AddWithValue("@rut", Mantencion.RutMecanico);
-                            var count = Convert.ToInt32(await cmd.ExecuteScalarAsync());
-                            mecanicoExiste = count > 0;
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    ModelState.AddModelError("Mantencion.RutMecanico", $"No se pudo verificar el mecánico en Recursos Humanos: {ex.Message}");
-                    
-                    var vehiculos = await _context.Vehiculos
-                        .Where(v => v.Estado != "De Baja")
-                        .Select(v => new { v.Codigo, Nombre = $"{v.Codigo} - {v.Marca} {v.Modelo} ({v.Patente})" })
-                        .ToListAsync();
-                    VehiculosList = new SelectList(vehiculos, "Codigo", "Nombre");
-                    return Page();
-                }
+                v.estado = "En Mantenicion";
+                _contextoDb.Attach(v).State = EntityState.Modified;
             }
 
-            if (!mecanicoExiste)
-            {
-                ModelState.AddModelError("Mantencion.RutMecanico", "El RUT ingresado no corresponde a ningún mecánico registrado en el sistema de Recursos Humanos.");
-                
-                var vehiculos = await _context.Vehiculos
-                    .Where(v => v.Estado != "De Baja")
-                    .Select(v => new { v.Codigo, Nombre = $"{v.Codigo} - {v.Marca} {v.Modelo} ({v.Patente})" })
-                    .ToListAsync();
-                VehiculosList = new SelectList(vehiculos, "Codigo", "Nombre");
-                return Page();
-            }
+            await _contextoDb.SaveChangesAsync();
 
-            // Registrar la mantención
-            _context.Mantencions.Add(Mantencion);
-
-            // Regla de Negocio: Al ingresar una mantención, el vehículo pasa a estado "En Mantencion" automáticamente
-            var vehiculo = await _context.Vehiculos.FindAsync(Mantencion.CodigoVehiculo);
-            if (vehiculo != null)
-            {
-                vehiculo.Estado = "En Mantencion";
-                _context.Attach(vehiculo).State = EntityState.Modified;
-            }
-
-            await _context.SaveChangesAsync();
-
-            TempData["SuccessMessage"] = "¡La mantención ha sido registrada con éxito y el vehículo se ha marcado 'En Mantención'!";
+            TempData["SuccessMessage"] = "La mantenicion ha sido registrada con exito y el vehiculo se ha marcado En Mantenicion";
 
             return RedirectToPage("./Registrar");
         }
