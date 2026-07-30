@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
+using SistemaMantenciones.Messaging;
 using SistemaMantenciones.Models;
 
 namespace SistemaMantenciones.Pages.Vehiculos
@@ -8,10 +9,12 @@ namespace SistemaMantenciones.Pages.Vehiculos
     public class EditarModel : PageModel
     {
         private readonly ArriendosMantencionesDbContext _contextoDb;
+        private readonly PublicadorVehiculo _publicador;
 
-        public EditarModel(ArriendosMantencionesDbContext contextoDb)
+        public EditarModel(ArriendosMantencionesDbContext contextoDb, PublicadorVehiculo publicador)
         {
             _contextoDb = contextoDb;
+            _publicador = publicador;
         }
 
         [BindProperty]
@@ -66,6 +69,10 @@ namespace SistemaMantenciones.Pages.Vehiculos
                     throw;
                 }
             }
+
+            _publicador.Publicar(new VehiculoMensaje(
+                vehiculo.codigo, vehiculo.patente, vehiculo.marca, vehiculo.modelo,
+                vehiculo.tipo, vehiculo.kilometraje, vehiculo.estado, vehiculo.precioArriendoDiario));
 
             return RedirectToPage("./Index");
         }

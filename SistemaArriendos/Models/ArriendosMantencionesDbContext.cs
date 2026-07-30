@@ -15,6 +15,7 @@ public partial class ArriendosMantencionesDbContext : DbContext
 
     public virtual DbSet<Arriendo> arriendos { get; set; } = null!;
     public virtual DbSet<Cliente> clientes { get; set; } = null!;
+    public virtual DbSet<VehiculoCache> vehiculosCache { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -51,6 +52,21 @@ public partial class ArriendosMantencionesDbContext : DbContext
             entity.Property(e => e.rut).HasMaxLength(12).HasColumnName("rut");
             entity.Property(e => e.direccion).HasMaxLength(200).HasColumnName("direccion");
             entity.Property(e => e.nombre).HasMaxLength(100).HasColumnName("nombre");
+        });
+
+        modelBuilder.Entity<VehiculoCache>(entity =>
+        {
+            entity.HasKey(e => e.codigo).HasName("PRIMARY");
+            entity.ToTable("vehiculo_cache");
+
+            entity.Property(e => e.codigo).HasMaxLength(20).HasColumnName("codigo");
+            entity.Property(e => e.patente).HasMaxLength(10).HasColumnName("patente");
+            entity.Property(e => e.marca).HasMaxLength(50).HasColumnName("marca");
+            entity.Property(e => e.modelo).HasMaxLength(50).HasColumnName("modelo");
+            entity.Property(e => e.tipo).HasMaxLength(50).HasColumnName("tipo");
+            entity.Property(e => e.kilometraje).HasColumnName("kilometraje");
+            entity.Property(e => e.estado).HasMaxLength(30).HasColumnName("estado");
+            entity.Property(e => e.precioArriendoDiario).HasColumnName("precioArriendoDiario");
         });
     }
 }

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
+using SistemaMantenciones.Messaging;
 using SistemaMantenciones.Models;
 
 namespace SistemaMantenciones.Pages.Vehiculos
@@ -8,10 +9,12 @@ namespace SistemaMantenciones.Pages.Vehiculos
     public class CrearModel : PageModel
     {
         private readonly ArriendosMantencionesDbContext _contextoDb;
+        private readonly PublicadorVehiculo _publicador;
 
-        public CrearModel(ArriendosMantencionesDbContext contextoDb)
+        public CrearModel(ArriendosMantencionesDbContext contextoDb, PublicadorVehiculo publicador)
         {
             _contextoDb = contextoDb;
+            _publicador = publicador;
         }
 
         public IActionResult OnGet()
@@ -51,6 +54,10 @@ namespace SistemaMantenciones.Pages.Vehiculos
 
             _contextoDb.vehiculos.Add(vehiculo);
             await _contextoDb.SaveChangesAsync();
+
+            _publicador.Publicar(new VehiculoMensaje(
+                vehiculo.codigo, vehiculo.patente, vehiculo.marca, vehiculo.modelo,
+                vehiculo.tipo, vehiculo.kilometraje, vehiculo.estado, vehiculo.precioArriendoDiario));
 
             return RedirectToPage("./Index");
         }

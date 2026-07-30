@@ -2,20 +2,20 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using SistemaArriendos.Messaging;
 using SistemaArriendos.Models;
-using SistemaArriendos.Protos;
 
 namespace SistemaArriendos.Pages.Arriendos
 {
     public class CrearModel : PageModel
     {
         private readonly ArriendosMantencionesDbContext _contextoDb;
-        private readonly ServicioMantencion.ServicioMantencionClient _clienteGrpc;
+        private readonly PublicadorArriendo _publicador;
 
-        public CrearModel(ArriendosMantencionesDbContext contextoDb, ServicioMantencion.ServicioMantencionClient clienteGrpc)
+        public CrearModel(ArriendosMantencionesDbContext contextoDb, PublicadorArriendo publicador)
         {
             _contextoDb = contextoDb;
-            _clienteGrpc = clienteGrpc;
+            _publicador = publicador;
         }
 
         public SelectList listaVehiculosDisponibles { get; set; } = default!;
@@ -58,19 +58,7 @@ namespace SistemaArriendos.Pages.Arriendos
                 return Page();
             }
 
-            // Obtener vehiculo desde el servicio gRPC
-            VehiculoRespuesta? v = null;
-            try
-            {
-                v = await _clienteGrpc.obtieneVehiculoAsync(new ObtieneVehiculoPeticion { Id = arriendo.codigoVehiculo });
-            }
-            catch (Exception ex)
-            {
-                ModelState.AddModelError("arriendo.codigoVehiculo", $"No se pudo obtener el vehiculo desde el servicio gRPC: {ex.Message}");
-                await cargarListasAsync();
-                return Page();
-            }
-
+            var v = await _contextoDb.vehiculosCache.FindAsync(arriendo.codigoVehiculo);
             if (v == null)
             {
                 ModelState.AddModelError("arriendo.codigoVehiculo", "El vehiculo seleccionado no existe.");
@@ -78,9 +66,9 @@ namespace SistemaArriendos.Pages.Arriendos
                 return Page();
             }
 
-            if (v.Estado != "Activo")
+            if (v.estado != "Activo")
             {
-                ModelState.AddModelError("arriendo.codigoVehiculo", $"No se puede arrendar este vehiculo: su estado actual es '{v.Estado}'. Solo se permiten vehiculos en estado 'Activo'.");
+                ModelState.AddModelError("arriendo.codigoVehiculo", $"No se puede arrendar este vehiculo: su estado actual es '{v.estado}'. Solo se permiten vehiculos en estado 'Activo'.");
                 await cargarListasAsync();
                 return Page();
             }
@@ -96,35 +84,15 @@ namespace SistemaArriendos.Pages.Arriendos
             int dias = (int)Math.Ceiling((arriendo.fechaFin - arriendo.fechaInicio).TotalDays);
             if (dias < 1) dias = 1;
 
-            arriendo.precioDiario = v.PrecioArriendoDiario;
-            arriendo.precioTotal = v.PrecioArriendoDiario * dias;
+            arriendo.precioDiario = v.precioArriendoDiario;
+            arriendo.precioTotal = v.precioArriendoDiario * dias;
             arriendo.estado = "Activo";
-
-            // Cambiar el estado del vehiculo a "Arrendado" via gRPC
-            try
-            {
-                var respuestaGrpc = await _clienteGrpc.cambiaEstadoVehiculoAsync(new CambiaEstadoVehiculoPeticion
-                {
-                    Id = arriendo.codigoVehiculo,
-                    Estado = "Arrendado"
-                });
-
-                if (!respuestaGrpc.Exito)
-                {
-                    ModelState.AddModelError("arriendo.codigoVehiculo", $"Fallo al cambiar el estado del vehiculo via gRPC: {respuestaGrpc.Mensaje}");
-                    await cargarListasAsync();
-                    return Page();
-                }
-            }
-            catch (Exception ex)
-            {
-                ModelState.AddModelError("arriendo.codigoVehiculo", $"Fallo la conexion gRPC para cambiar el estado del vehiculo: {ex.Message}");
-                await cargarListasAsync();
-                return Page();
-            }
 
             _contextoDb.arriendos.Add(arriendo);
             await _contextoDb.SaveChangesAsync();
+
+            // Avisa a Mantenciones via cola_arriendo para que marque el vehiculo como Arrendado.
+            _publicador.Publicar(new ArriendoMensaje("ArriendoCreado", arriendo.codigoVehiculo));
 
             TempData["SuccessMessage"] = $"Arriendo registrado con exito por {dias} dia(s). Total: ${arriendo.precioTotal:N0}";
             return RedirectToPage("./Index");
@@ -132,29 +100,14 @@ namespace SistemaArriendos.Pages.Arriendos
 
         private async Task cargarListasAsync()
         {
-            var disponibles = new List<object>();
-            try
-            {
-                var respuestaVehiculos = await _clienteGrpc.obtieneVehiculosAsync(new ObtieneVehiculosPeticion());
-                if (respuestaVehiculos != null)
+            var disponibles = await _contextoDb.vehiculosCache
+                .Where(v => v.estado == "Activo")
+                .Select(v => new
                 {
-                    foreach (var v in respuestaVehiculos.Vehiculos)
-                    {
-                        if (v.Estado == "Activo")
-                        {
-                            disponibles.Add(new
-                            {
-                                codigo = v.Codigo,
-                                nombre = $"{v.Codigo} - {v.Marca} {v.Modelo} ({v.Patente}) - ${v.PrecioArriendoDiario}/dia"
-                            });
-                        }
-                    }
-                }
-            }
-            catch
-            {
-                // Manejar error de conexion
-            }
+                    codigo = v.codigo,
+                    nombre = $"{v.codigo} - {v.marca} {v.modelo} ({v.patente}) - ${v.precioArriendoDiario}/dia"
+                })
+                .ToListAsync();
 
             listaVehiculosDisponibles = new SelectList(disponibles, "codigo", "nombre");
 

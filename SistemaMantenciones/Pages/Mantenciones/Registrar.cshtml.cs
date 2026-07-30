@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using SistemaMantenciones.Messaging;
 using SistemaMantenciones.Models;
 
 namespace SistemaMantenciones.Pages.Mantenciones
@@ -9,10 +10,12 @@ namespace SistemaMantenciones.Pages.Mantenciones
     public class RegistrarModel : PageModel
     {
         private readonly ArriendosMantencionesDbContext _contextoDb;
+        private readonly PublicadorVehiculo _publicador;
 
-        public RegistrarModel(ArriendosMantencionesDbContext contextoDb)
+        public RegistrarModel(ArriendosMantencionesDbContext contextoDb, PublicadorVehiculo publicador)
         {
             _contextoDb = contextoDb;
+            _publicador = publicador;
         }
 
         public SelectList listaVehiculos { get; set; } = default!;
@@ -61,6 +64,12 @@ namespace SistemaMantenciones.Pages.Mantenciones
             }
 
             await _contextoDb.SaveChangesAsync();
+
+            if (v != null)
+            {
+                _publicador.Publicar(new VehiculoMensaje(
+                    v.codigo, v.patente, v.marca, v.modelo, v.tipo, v.kilometraje, v.estado, v.precioArriendoDiario));
+            }
 
             TempData["SuccessMessage"] = "La mantenicion ha sido registrada con exito y el vehiculo se ha marcado En Mantenicion";
 

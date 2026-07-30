@@ -1,29 +1,16 @@
-using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
+using SistemaMantenciones.Messaging;
 using SistemaMantenciones.Models;
-using SistemaMantenciones.Services;
 
 var builder = WebApplication.CreateBuilder(args);
-
-builder.WebHost.ConfigureKestrel(options =>
-{
-    // Puerto 5206: HTTP/1.1 para la aplicacion web (Razor Pages)
-    options.ListenLocalhost(5206, listenOptions =>
-    {
-        listenOptions.Protocols = HttpProtocols.Http1;
-    });
-
-    // Puerto 5207: HTTP/2 exclusivo para el servicio gRPC sin encriptar (cleartext)
-    options.ListenLocalhost(5207, listenOptions =>
-    {
-        listenOptions.Protocols = HttpProtocols.Http2;
-    });
-});
 
 builder.Configuration.AddJsonFile("appsettings.local.json", optional: true, reloadOnChange: true);
 
 builder.Services.AddRazorPages();
-builder.Services.AddGrpc();
+
+builder.Services.AddSingleton<RabbitMqConnection>();
+builder.Services.AddScoped<PublicadorVehiculo>();
+builder.Services.AddHostedService<ConsumidorArriendo>();
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<ArriendosMantencionesDbContext>(options =>
@@ -47,6 +34,5 @@ app.UseAuthorization();
 
 app.MapStaticAssets();
 app.MapRazorPages().WithStaticAssets();
-app.MapGrpcService<ServicioMantencionImpl>();
 
 app.Run();

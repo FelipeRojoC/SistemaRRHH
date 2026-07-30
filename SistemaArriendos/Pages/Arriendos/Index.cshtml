@@ -52,7 +52,7 @@
                 foreach (var item in Model.listaArriendos)
                 {
                     bool tieneVehiculo = Model.mapaVehiculos.TryGetValue(item.codigoVehiculo, out var v);
-                    string badgeColor = tieneVehiculo ? v!.Estado switch
+                    string badgeColor = tieneVehiculo ? v!.estado switch
                     {
                         "Activo" => "bg-success",
                         "Arrendado" => "bg-primary",
@@ -61,7 +61,7 @@
                         _ => "bg-secondary"
                     } : "bg-secondary";
 
-                    string estadoVehiculo = tieneVehiculo ? v!.Estado : "Desconocido";
+                    string estadoVehiculo = tieneVehiculo ? v!.estado : "Desconocido";
 
                     <tr>
                         <td class="fw-bold">@item.id</td>
@@ -69,7 +69,7 @@
                             <strong>@item.codigoVehiculo</strong><br />
                             @if (tieneVehiculo)
                             {
-                                <small class="text-muted">@v!.Marca @v.Modelo (@v.Patente)</small>
+                                <small class="text-muted">@v!.marca @v.modelo (@v.patente)</small>
                             }
                         </td>
                         <td>

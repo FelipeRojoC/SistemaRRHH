@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
+using SistemaMantenciones.Messaging;
 using SistemaMantenciones.Models;
 
 namespace SistemaMantenciones.Pages.Vehiculos
@@ -8,10 +9,12 @@ namespace SistemaMantenciones.Pages.Vehiculos
     public class IndexModel : PageModel
     {
         private readonly ArriendosMantencionesDbContext _contextoDb;
+        private readonly PublicadorVehiculo _publicador;
 
-        public IndexModel(ArriendosMantencionesDbContext contextoDb)
+        public IndexModel(ArriendosMantencionesDbContext contextoDb, PublicadorVehiculo publicador)
         {
             _contextoDb = contextoDb;
+            _publicador = publicador;
         }
 
         public IList<Vehiculo> listaVehiculos { get; set; } = default!;
@@ -37,6 +40,10 @@ namespace SistemaMantenciones.Pages.Vehiculos
                 v.estado = nuevoEstado;
                 _contextoDb.Entry(v).State = EntityState.Modified;
                 await _contextoDb.SaveChangesAsync();
+
+                _publicador.Publicar(new VehiculoMensaje(
+                    v.codigo, v.patente, v.marca, v.modelo, v.tipo, v.kilometraje, v.estado, v.precioArriendoDiario));
+
                 TempData["SuccessMessage"] = "Estado del vehiculo actualizado correctamente.";
             }
 
